@@ -1,0 +1,187 @@
+body {
+    grid-template:
+        ".. ..";
+    display: grid;
+    height: 100vh;
+    margin: 0;
+    background: url('tictac.png') center/cover;
+    transition: background-color 0.3s ease-in-out;
+    align-items: center;
+}
+
+
+
+.container {
+    text-align: center;
+    width: fit-content;
+    padding: 50px;
+    border-image: linear-gradient(to right, #EBC1EE, #605399);
+    border-image-slice: 1;
+    border-radius: 10px;
+    transition: background-color 0.3s ease-in-out;
+    animation: glow 2s infinite;
+    position: absolute;
+    left: 950px;
+}
+#score{
+    font-size: 50px; 
+    color: white;
+    position: absolute;
+    right: 1230px;
+
+}
+
+ 
+h1 {
+    color: white;
+    text-align: center;
+    font-size: 50px;
+    margin-bottom: 20px;
+    margin-right: 350px;
+}
+p{
+    color: white; 
+    font-size: 50px; 
+    margin-bottom: 450px; 
+    text-align: center; 
+    margin-right:350px ;
+
+}
+ 
+#game-container {
+    margin-top: 20px;
+}
+ 
+.board {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 5px;
+}
+ 
+.cell {
+    color: white;
+    width: 80px;
+    height: 80px;
+    border: 2px solid;
+    border-image: linear-gradient(to right, #EBC1EE, #605399);
+    border-image-slice: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+    animation: glow 2s infinite;
+}
+ 
+.cell:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+ 
+/* Dark mode styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #ffffff;
+}
+ 
+.container.dark-mode {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffffff;
+}
+ 
+#game-container.dark-mode {
+    background-color: #333;
+    color: #ffffff;
+}
+ 
+.cell.dark-mode {
+    border-color: #ffffff;
+    background-color: #444;
+}
+ 
+.cell.dark-mode:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+ 
+select {
+    background: linear-gradient(45deg, #9d71a4, transparent);
+    animation: glow 2s infinite;
+    border-radius: 2px;
+    width: 170px;
+    height: 50px;
+    border-image: linear-gradient(to right, #EBC1EE, #605399);
+    font-weight: 800;
+    position: absolute;
+    top: 450px;
+}
+.mode-container {
+    text-align: left; /* Adjust as needed */
+    margin-right: 20px; /* Adjust as needed */
+    position: absolute;
+    top: 210px;
+    left: 370px;
+    
+}
+
+.difficulty-container {
+    position: absolute;
+    top: 150px;
+    text-align: left; /* Adjust as needed */
+    left: 370px;
+}
+ 
+@keyframes glow {
+    0% {
+      box-shadow: 0 0 5px #3498db, 0 0 20px #3498db; /* Initial shadow values */
+    }
+    50% {
+      box-shadow: 0 0 20px #605399, 0 0 30px #3498db; /* Intermediate shadow values */
+    }
+    100% {
+      box-shadow: 0 0 5px #605399, 0 0 20px #605399; /* Final shadow values */
+    }
+  }
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: linear-gradient(to right, #EBC1EE, #A277C6, #605399);
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center; /* Center the text */
+}
+
+.modal-content p {
+    margin: 0; 
+    color: #fff; 
+}
+.close {
+    color: #fff; 
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover {
+    color: #eee; 
+    text-decoration: none;
+    cursor: pointer;
+}
+.footer-container {
+    position: absolute;
+    top: 810px;
+    left: 120px;
+    padding: 20px;
+    width: 100%;
+}

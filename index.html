@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="tictactoe.css">
+
+   
+</head>
+<body>
+
+    
+   
+<div style="justify-self: center;">
+    <h1>DIRECTION:</h1>
+    <p>First to get 5 points win</p>
+</div>
+
+<div class="mode-container">
+    <label for="gameMode"></label>
+    <select id="gameMode" onchange="changeGameMode()">
+        <option value="ai">AI vs Human</option>
+        <option value="human">Human vs Human</option>
+    </select>
+</div>
+
+<div class="difficulty-container">
+    <label for="difficulty"></label>
+    <select id="difficulty" onchange="changeDifficulty()">
+        <option value="easy">Easy</option>
+        <option value="difficult">Difficult</option>
+        <option value="expert">Expert</option>
+    </select>
+</div>
+
+<div class="container" style="">
+    <div id="game-container">
+        <div id="board" class="board"></div>
+    </div>
+    
+    <!-- Modal Container -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <p id="modal-message"></p>
+        </div>
+    </div>
+
+    <button id="reset-button" onclick="resetGame()" style="
+        color: white;
+        margin-top: 25px;
+        font-weight: 900;
+        background: linear-gradient(to right, #EBC1EE, #A277C6, #605399); /* Add more colors here */
+        animation: glow 2s infinite;
+        border-radius: 2px;
+        width: 150px;
+        height: 50px;
+    ">Reset Game</button>
+    
+</div>
+
+<div id="score"></div>
+<div id="board"></div>
+</div>
+
+<div class="footer-container">
+    <h1 style="font-size: 34px;">Members</h1>
+    <p style="font-size: 30px; margin-bottom: 30px;">• Allyssa Gallo • Mary Joy Reano • Beverly Bernardino • Edward Cristobal • John Mark Oliveros</p>
+</div>
+
+
+<script>
+    const boardSize = { rows: 6, cols: 6 };
+let board = Array.from({ length: boardSize.rows }, () => Array(boardSize.cols).fill(''));
+let currentPlayer = 'X';
+let gameover = false;
+let difficulty = 'easy'; // Default difficulty
+let gameMode = 'ai'; // Default game mode
+let scores = { X: 0, O: 0 };
+
+const boardElement = document.getElementById('board');
+const difficultySelect = document.getElementById('difficulty');
+const gameModeSelect = document.getElementById('gameMode');
+const scoreElement = document.getElementById('score');
+boardElement.addEventListener('click', handleCellClick);
+
+initializeBoard();
+
+function initializeBoard() {
+    for (let row = 0; row < boardSize.rows; row++) {
+        for (let col = 0; col < boardSize.cols; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+            boardElement.appendChild(cell);
+        }
+    }
+    updateScore();
+}
+
+function handleCellClick(event) {
+    if (gameover) return;
+
+    const row = parseInt(event.target.dataset.row);
+    const col = parseInt(event.target.dataset.col);
+
+    if (board[row][col] === '') {
+        board[row][col] = currentPlayer;
+        event.target.textContent = currentPlayer;
+        checkWinner(row, col);
+
+        if (gameover) {
+            scores[currentPlayer]++;
+            updateScore();
+            if (scores[currentPlayer] === 5) {
+                displayMessage(`Player ${currentPlayer} wins this round!`);
+                resetScores();
+            } else {
+                resetGame();
+            }
+        } else {
+            currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+
+            if (gameMode === 'ai' && currentPlayer === 'O') {
+                // Reduce the delay here to make the AI respond faster
+                setTimeout(() => makeMoveAI(), 200); // Adjust the delay here (e.g., 200 milliseconds)
+            }
+        }
+    }
+}
+
+function makeMoveAI() {
+    switch (difficulty) {
+        case 'easy':
+            makeMoveAIEasy();
+            break;
+        case 'difficult':
+            makeMoveAIDifficult();
+            break;
+        case 'expert':
+            makeMoveAIExpert();
+            break;
+    }
+}
+
+function makeMoveAIEasy() {
+    // Easy AI: Makes a random move
+    const emptyCells = getEmptyCells();
+    makeRandomMove(emptyCells);
+    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X'; // Fix for setting correct current player
+}
+
+function makeMoveAIDifficult() {
+    // Difficult AI: Tries to block player and make strategic moves
+    const emptyCells = getEmptyCells();
+    const blockingMove = getBlockingMove();
+    if (blockingMove) {
+        makeMove(blockingMove.row, blockingMove.col);
+    } else {
+        makeStrategicMove(emptyCells);
+    }
+    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X'; // Fix for setting correct current player
+}
+
+function makeMoveAIExpert() {
+    // Expert AI: Tries to win, block player, and make strategic moves
+    const emptyCells = getEmptyCells();
+    const winningMove = getWinningMove();
+    const blockingMove = getBlockingMove();
+
+    if (winningMove) {
+        makeMove(winningMove.row, winningMove.col);
+    } else if (blockingMove) {
+        makeMove(blockingMove.row, blockingMove.col);
+    } else {
+        makeStrategicMove(emptyCells);
+    }
+    currentPlayer = (currentPlayer === 'X') ? 'O' : 'X'; // Fix for setting correct current player
+}
+
+function getEmptyCells() {
+    const emptyCells = [];
+    for (let row = 0; row < boardSize.rows; row++) {
+        for (let col = 0; col < boardSize.cols; col++) {
+            if (board[row][col] === '') {
+                emptyCells.push({ row, col });
+            }
+        }
+    }
+    return emptyCells;
+}
+
+function getWinningMove() {
+    for (let row = 0; row < boardSize.rows; row++) {
+        for (let col = 0; col < boardSize.cols; col++) {
+            if (board[row][col] === '') {
+                board[row][col] = currentPlayer;
+                if (checkLine(row, col, 0, 1) || checkLine(row, col, 1, 0) || checkLine(row, col, 1, 1) || checkLine(row, col, 1, -1)) {
+                    board[row][col] = ''; // Reset the move
+                    return { row, col };
+                }
+                board[row][col] = ''; // Reset the move
+            }
+        }
+    }
+    return null;
+}
+
+function getBlockingMove() {
+    for (let row = 0; row < boardSize.rows; row++) {
+        for (let col = 0; col < boardSize.cols; col++) {
+            if (board[row][col] === '') {
+                board[row][col] = (currentPlayer === 'X') ? 'O' : 'X';
+                if (checkLine(row, col, 0, 1) || checkLine(row, col, 1, 0) || checkLine(row, col, 1, 1) || checkLine(row, col, 1, -1)) {
+                    board[row][col] = ''; // Reset the move
+                    return { row, col };
+                }
+                board[row][col] = ''; // Reset the move
+            }
+        }
+    }
+    return null;
+}
+
+function makeStrategicMove(emptyCells) {
+    // Make a strategic move based on the current board state
+    makeRandomMove(emptyCells); // Placeholder for strategic move logic
+}
+
+function makeRandomMove(emptyCells) {
+    if (emptyCells.length > 0) {
+        const randomIndex = Math.floor(Math.random() * emptyCells.length);
+        const { row, col } = emptyCells[randomIndex];
+        makeMove(row, col);
+    }
+}
+
+function makeMove(row, col) {
+    board[row][col] = currentPlayer;
+    const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+    cell.textContent = currentPlayer;
+    checkWinner(row, col);
+}
+
+function checkWinner(row, col) {
+    if (checkLine(row, col, 0, 1) || checkLine(row, col, 1, 0) || checkLine(row, col, 1, 1) || checkLine(row, col, 1, -1)) {
+        displayMessage(`Player ${currentPlayer} wins this round!`);
+        gameover = true;
+    } else if (isBoardFull()) {
+        displayMessage('It\'s a draw!');
+        gameover = true;
+    }
+}
+function displayMessage(message) {
+    const modal = document.getElementById('myModal');
+    const modalMessage = document.getElementById('modal-message');
+    
+    modalMessage.textContent = message;
+    modal.style.display = 'block';
+
+    setTimeout(() => {
+        modalMessage.textContent = '';
+        modal.style.display = 'none';
+    }, 3000);
+}
+
+
+    function closeModal() {
+        const modal = document.getElementById('myModal');
+        modal.style.display = 'none';
+    }
+
+function checkLine(row, col, rowDir, colDir) {
+    const player = board[row][col];
+    let count = 1; // Counting the current cell
+
+    for (let i = 1; i < 6; i++) {
+        const newRow = row + i * rowDir;
+        const newCol = col + i * colDir;
+
+        if (newRow < 0 || newRow >= boardSize.rows || newCol < 0 || newCol >= boardSize.cols || board[newRow][newCol] !== player) {
+            break;
+        }
+
+        count++;
+    }
+
+    for (let i = 1; i < 6; i++) {
+        const newRow = row - i * rowDir;
+        const newCol = col - i * colDir;
+
+        if (newRow < 0 || newRow >= boardSize.rows || newCol < 0 || newCol >= boardSize.cols || board[newRow][newCol] !== player) {
+            break;
+        }
+
+        count++;
+    }
+
+    return count >= 6;
+}
+
+function isBoardFull() {
+    return board.every(row => row.every(cell => cell !== ''));
+}
+
+function updateScore() {
+    scoreElement.textContent
+    scoreElement.textContent = `Score: X - ${scores.X} | O - ${scores.O}`;
+}
+
+function changeDifficulty() {
+    difficulty = difficultySelect.value;
+    resetGame();
+}
+
+function changeGameMode() {
+    gameMode = gameModeSelect.value;
+    resetGame();
+}
+
+function resetGame() {
+    board = Array.from({ length: boardSize.rows }, () => Array(boardSize.cols).fill(''));
+    currentPlayer = 'X';
+    gameover = false;
+
+    const cells = document.querySelectorAll('.cell');
+    cells.forEach(cell => {
+        cell.textContent = '';
+    });
+
+    if (gameMode === 'ai' && currentPlayer === 'O') {
+        // Reduce the delay here to make the AI respond faster
+        setTimeout(() => makeMoveAI(), 200); // Adjust the delay here (e.g., 200 milliseconds)
+    }
+}
+
+function resetScores() {
+    scores = { X: 0, O: 0 };
+    updateScore();
+}
+
+</script>
+
+</body>
+</html>
